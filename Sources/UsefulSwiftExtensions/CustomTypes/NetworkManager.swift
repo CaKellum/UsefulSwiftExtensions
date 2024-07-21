@@ -2,6 +2,12 @@ import Foundation
 
 public struct NetworkManager {
 
+    public static let shared = NetworkManager()
+
+    private var baseScheme: String?
+
+    private init() {}
+
     public enum NetworkError: Error {
         case requestBuildError(message: String?)
     }
@@ -59,7 +65,11 @@ public struct NetworkManager {
         }
     }
 
-    static func makeRequest<ResponseType: Decodable>(_ request: URLRequest,
+    public mutating func setBaseScheme(baseScheme: String) {
+        self.baseScheme = baseScheme
+    }
+
+    public func makeRequest<ResponseType: Decodable>(_ request: URLRequest,
                                                      returning: ResponseType.Type) async throws -> (HTTPURLResponse?, ResponseType?) {
         let (data, response) = try await URLSession.shared.data(for: request)
         let responseData = try JSONDecoder().decode(returning, from: data)
@@ -67,7 +77,7 @@ public struct NetworkManager {
         return (httpResponse, responseData)
     }
 
-    static func makeRequest(_ request: URLRequest) async throws -> (HTTPURLResponse?, Data?) {
+    public func makeRequest(_ request: URLRequest) async throws -> (HTTPURLResponse?, Data?) {
         let (data, response) = try await URLSession.shared.data(for: request)
         let httpResponse = response as? HTTPURLResponse
         return (httpResponse, data)
