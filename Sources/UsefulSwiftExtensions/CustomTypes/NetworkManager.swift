@@ -1,11 +1,14 @@
 import Foundation
 
-public struct NetworkManager {
+public struct NetworkManager: Sendable {
 
     public static let shared = NetworkManager()
-
-    private var baseScheme: String?
-
+    
+    private let networkManagerQueue = DispatchQueue(label: "NetworkManagerMutation", qos: .utility)
+    private var _baseScheme: String? = nil
+    public var baseScheme: String? {
+            networkManagerQueue.sync { return _baseScheme }
+    }
     private init() {}
 
     public enum NetworkError: Error {
@@ -66,7 +69,7 @@ public struct NetworkManager {
     }
 
     public mutating func setBaseScheme(baseScheme: String) {
-        self.baseScheme = baseScheme
+        networkManagerQueue.sync { self._baseScheme = baseScheme }
     }
 
     public func makeRequest<ResponseType: Decodable>(_ request: URLRequest,
