@@ -2,8 +2,8 @@ import Foundation
 
 public struct NetworkManager: Sendable {
 
-    public static let shared = NetworkManager()
-    
+    private(set) static var shared = NetworkManager()
+
     private let networkManagerQueue = DispatchQueue(label: "NetworkManagerMutation", qos: .utility)
     private var _baseScheme: String? = nil
     public var baseScheme: String? {
