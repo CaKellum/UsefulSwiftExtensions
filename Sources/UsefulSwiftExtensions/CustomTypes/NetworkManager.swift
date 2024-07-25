@@ -2,13 +2,8 @@ import Foundation
 
 public struct NetworkManager: Sendable {
 
-    private(set) public static var shared = NetworkManager()
+    public static let shared = NetworkManager()
 
-    private let networkManagerQueue = DispatchQueue(label: "NetworkManagerMutation", qos: .utility)
-    private var _baseScheme: String? = nil
-    public var baseScheme: String? {
-            networkManagerQueue.sync { return _baseScheme }
-    }
     private init() {}
 
     public enum NetworkError: Error {
@@ -26,9 +21,9 @@ public struct NetworkManager: Sendable {
     public class RequestBuilder {
         public typealias BuildClosure = (RequestBuilder) -> Void
 
-        var scheme: String?
-        var path: String?
-        var method: RequestType = .get
+        public var scheme: String?
+        public var path: String?
+        public var method: RequestType = .get
         private var queryParameters = Set<URLQueryItem>()
         private var body: Data?
         private var headers = [String: String]()
@@ -66,10 +61,6 @@ public struct NetworkManager: Sendable {
             request.allHTTPHeaderFields = headers
             return request
         }
-    }
-
-    public mutating func setBaseScheme(baseScheme: String) {
-        networkManagerQueue.sync { self._baseScheme = baseScheme }
     }
 
     public func makeRequest<ResponseType: Decodable>(_ request: URLRequest,
